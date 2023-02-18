@@ -1,4 +1,4 @@
-import { Staff } from '../Client.interfaces';
+import { Staff } from "../Client.interfaces";
 
 export declare interface Schedule {
   /**
@@ -189,4 +189,9 @@ export declare interface ClassScheduleInfo {
    * The teacher of the class
    */
   teacher: Staff & { url: string; emailSubject: string };
+
+  /**
+   * The room name or location of the class
+   */
+  room: string;
 }

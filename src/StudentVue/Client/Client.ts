@@ -210,6 +210,7 @@ export default class Client extends soap.Client {
                                 start: parse(course['@_StartTime'][0], 'hh:mm a', Date.now()),
                                 end: parse(course['@_EndTime'][0], 'hh:mm a', Date.now()),
                               },
+                              room: course['@_RoomName'][0]
                             }))
                           : [],
                     })
