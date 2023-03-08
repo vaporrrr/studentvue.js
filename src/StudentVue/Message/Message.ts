@@ -3,6 +3,7 @@ import soap from '../../utils/soap/soap';
 import Attachment from '../Attachment/Attachment';
 import { MessageXMLObject } from './Message.xml';
 import Icon from '../Icon/Icon';
+import { parseDateString } from '../Client/Client.helpers';
 
 /**
  * Message class
@@ -83,7 +84,7 @@ export default class Message extends soap.Client {
      * @public
      * @readonly
      */
-    this.beginDate = new Date(xmlObject['@_BeginDate'][0]);
+    this.beginDate = parseDateString(xmlObject['@_BeginDate'][0]);
     /**
      * The HTML content of the message
      * @type {string}
@@ -147,7 +148,12 @@ export default class Message extends soap.Client {
     this.attachments =
       typeof xmlObject.AttachmentDatas[0] !== 'string'
         ? xmlObject.AttachmentDatas[0].AttachmentData.map(
-            (data) => new Attachment(data['@_AttachmentName'][0], data['@_SmAttachmentGU'][0], credentials)
+            (data) =>
+              new Attachment(
+                data['@_AttachmentName'][0],
+                data['@_SmAttachmentGU'][0],
+                credentials
+              )
           )
         : [];
   }

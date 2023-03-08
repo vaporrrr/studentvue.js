@@ -24,7 +24,7 @@ import Document from '../Document/Document';
 import RequestException from '../RequestException/RequestException';
 import XMLFactory from '../../utils/XMLFactory/XMLFactory';
 import cache from '../../utils/cache/cache';
-import { optional, asyncPoolAll } from './Client.helpers';
+import { optional, asyncPoolAll, parseDateString } from './Client.helpers';
 
 /**
  * The StudentVUE Client to access the API
@@ -193,8 +193,8 @@ export default class Client extends soap.Client {
                               period: Number(course['@_Period'][0]),
                               attendanceCode: course.AttendanceCode[0],
                               date: {
-                                start: new Date(course['@_StartDate'][0]),
-                                end: new Date(course['@_EndDate'][0]),
+                                start: parseDateString(course['@_StartDate'][0]),
+                                end: parseDateString(course['@_EndDate'][0]),
                               },
                               name: course['@_ClassName'][0],
                               sectionGu: course['@_SectionGU'][0],
@@ -232,8 +232,8 @@ export default class Client extends soap.Client {
                 : [],
             terms: xmlObject.StudentClassSchedule[0].TermLists[0].TermListing.map((term) => ({
               date: {
-                start: new Date(term['@_BeginDate'][0]),
-                end: new Date(term['@_EndDate'][0]),
+                start: parseDateString(term['@_BeginDate'][0]),
+                end: parseDateString(term['@_EndDate'][0]),
               },
               index: Number(term['@_TermIndex'][0]),
               name: term['@_TermName'][0],
@@ -276,7 +276,7 @@ export default class Client extends soap.Client {
             schoolName: xmlObject['@_SchoolName'][0],
             absences: xmlObject.Absences[0].Absence
               ? xmlObject.Absences[0].Absence.map((absence) => ({
-                  date: new Date(absence['@_AbsenceDate'][0]),
+                  date: parseDateString(absence['@_AbsenceDate'][0]),
                   reason: absence['@_Reason'][0],
                   note: absence['@_Note'][0],
                   description: absence['@_CodeAllDayDescription'][0],
@@ -357,13 +357,13 @@ export default class Client extends soap.Client {
                     )?.['@_Index'][0]
                   ),
                 date: {
-                  start: new Date(xmlObject.Gradebook[0].ReportingPeriod[0]['@_StartDate'][0]),
-                  end: new Date(xmlObject.Gradebook[0].ReportingPeriod[0]['@_EndDate'][0]),
+                  start: parseDateString(xmlObject.Gradebook[0].ReportingPeriod[0]['@_StartDate'][0]),
+                  end: parseDateString(xmlObject.Gradebook[0].ReportingPeriod[0]['@_EndDate'][0]),
                 },
                 name: xmlObject.Gradebook[0].ReportingPeriod[0]['@_GradePeriod'][0],
               },
               available: xmlObject.Gradebook[0].ReportingPeriods[0].ReportPeriod.map((period) => ({
-                date: { start: new Date(period['@_StartDate'][0]), end: new Date(period['@_EndDate'][0]) },
+                date: { start: parseDateString(period['@_StartDate'][0]), end: parseDateString(period['@_EndDate'][0]) },
                 name: period['@_GradePeriod'][0],
                 index: Number(period['@_Index'][0]),
               })),
@@ -408,8 +408,8 @@ export default class Client extends soap.Client {
                         name: decodeURI(assignment['@_Measure'][0]),
                         type: assignment['@_Type'][0],
                         date: {
-                          start: new Date(assignment['@_Date'][0]),
-                          due: new Date(assignment['@_DueDate'][0]),
+                          start: parseDateString(assignment['@_Date'][0]),
+                          due: parseDateString(assignment['@_DueDate'][0]),
                         },
                         score: {
                           type: assignment['@_ScoreType'][0],
@@ -422,8 +422,8 @@ export default class Client extends soap.Client {
                         hasDropbox: JSON.parse(assignment['@_HasDropBox'][0]),
                         studentId: assignment['@_StudentID'][0],
                         dropboxDate: {
-                          start: new Date(assignment['@_DropStartDate'][0]),
-                          end: new Date(assignment['@_DropEndDate'][0]),
+                          start: parseDateString(assignment['@_DropStartDate'][0]),
+                          end: parseDateString(assignment['@_DropEndDate'][0]),
                         },
                         resources:
                           typeof assignment.Resources[0] !== 'string'
@@ -439,7 +439,7 @@ export default class Client extends soap.Client {
                                         uri: this.hostUrl + fileRsrc['@_ServerFileName'][0],
                                       },
                                       resource: {
-                                        date: new Date(fileRsrc['@_ResourceDate'][0]),
+                                        date: parseDateString(fileRsrc['@_ResourceDate'][0]),
                                         id: fileRsrc['@_ResourceID'][0],
                                         name: fileRsrc['@_ResourceName'][0],
                                       },
@@ -451,7 +451,7 @@ export default class Client extends soap.Client {
                                       url: urlRsrc['@_URL'][0],
                                       type: ResourceType.URL,
                                       resource: {
-                                        date: new Date(urlRsrc['@_ResourceDate'][0]),
+                                        date: parseDateString(urlRsrc['@_ResourceDate'][0]),
                                         id: urlRsrc['@_ResourceID'][0],
                                         name: urlRsrc['@_ResourceName'][0],
                                         description: urlRsrc['@_ResourceDescription'][0],
@@ -527,7 +527,7 @@ export default class Client extends soap.Client {
               lastName: xmlObjectData.StudentInfo[0].LastNameGoesBy[0],
               nickname: xmlObjectData.StudentInfo[0].NickName[0],
             },
-            birthDate: new Date(xmlObjectData.StudentInfo[0].BirthDate[0]),
+            birthDate: parseDateString(xmlObjectData.StudentInfo[0].BirthDate[0]),
             track: optional(xmlObjectData.StudentInfo[0].Track),
             address: optional(xmlObjectData.StudentInfo[0].Address),
             photo: optional(xmlObjectData.StudentInfo[0].Photo),
@@ -622,7 +622,7 @@ export default class Client extends soap.Client {
    * @returns {Promise<Calendar>} Returns a Calendar object
    * @description
    * ```js
-   * client.calendar({ interval: { start: new Date('5/1/2022'), end: new Date('8/1/2021') }, concurrency: null }); // -> Limitless concurrency (not recommended)
+   * client.calendar({ interval: { start: parseDate('5/1/2022'), end: parseDate('8/1/2021') }, concurrency: null }); // -> Limitless concurrency (not recommended)
    *
    * const calendar = await client.calendar({ interval: { ... }});
    * console.log(calendar); // -> { schoolDate: {...}, outputRange: {...}, events: [...] }
@@ -635,9 +635,9 @@ export default class Client extends soap.Client {
     };
     const cal = await cache.memo(() => this.fetchEventsWithinInterval(new Date()));
     const schoolEndDate: Date | number =
-      options.interval?.end ?? new Date(cal.CalendarListing[0]['@_SchoolEndDate'][0]);
+      options.interval?.end ?? parseDateString(cal.CalendarListing[0]['@_SchoolEndDate'][0]);
     const schoolStartDate: Date | number =
-      options.interval?.start ?? new Date(cal.CalendarListing[0]['@_SchoolBegDate'][0]);
+      options.interval?.start ?? parseDateString(cal.CalendarListing[0]['@_SchoolBegDate'][0]);
 
     return new Promise((res, rej) => {
       const monthsWithinSchoolYear = eachMonthOfInterval({ start: schoolStartDate, end: schoolEndDate });
@@ -654,8 +654,8 @@ export default class Client extends soap.Client {
             if (memo == null)
               memo = {
                 schoolDate: {
-                  start: new Date(events.CalendarListing[0]['@_SchoolBegDate'][0]),
-                  end: new Date(events.CalendarListing[0]['@_SchoolEndDate'][0]),
+                  start: parseDateString(events.CalendarListing[0]['@_SchoolBegDate'][0]),
+                  end: parseDateString(events.CalendarListing[0]['@_SchoolEndDate'][0]),
                 },
                 outputRange: {
                   start: schoolStartDate,
@@ -676,7 +676,7 @@ export default class Client extends soap.Client {
                             title: decodeURI(assignmentEvent['@_Title'][0]),
                             addLinkData: assignmentEvent['@_AddLinkData'][0],
                             agu: assignmentEvent['@_AGU'] ? assignmentEvent['@_AGU'][0] : undefined,
-                            date: new Date(assignmentEvent['@_Date'][0]),
+                            date: parseDateString(assignmentEvent['@_Date'][0]),
                             dgu: assignmentEvent['@_DGU'][0],
                             link: assignmentEvent['@_Link'][0],
                             startTime: assignmentEvent['@_StartTime'][0],
@@ -689,7 +689,7 @@ export default class Client extends soap.Client {
                             title: decodeURI(event['@_Title'][0]),
                             type: EventType.HOLIDAY,
                             startTime: event['@_StartTime'][0],
-                            date: new Date(event['@_Date'][0]),
+                            date: parseDateString(event['@_Date'][0]),
                           } as HolidayEvent;
                         }
                         case EventType.REGULAR: {
@@ -697,7 +697,7 @@ export default class Client extends soap.Client {
                           return {
                             title: decodeURI(regularEvent['@_Title'][0]),
                             agu: regularEvent['@_AGU'] ? regularEvent['@_AGU'][0] : undefined,
-                            date: new Date(regularEvent['@_Date'][0]),
+                            date: parseDateString(regularEvent['@_Date'][0]),
                             description: regularEvent['@_EvtDescription']
                               ? regularEvent['@_EvtDescription'][0]
                               : undefined,

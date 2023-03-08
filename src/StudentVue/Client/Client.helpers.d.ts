@@ -12,3 +12,9 @@ export declare function asyncPoolAll<IN, OUT>(poolLimit: number, array: readonly
  * @returns Returns undefined or the value of the XML
  */
 export declare function optional<T>(xmlArr?: T[]): T | undefined;
+/**
+ * Parsing a string to a Date
+ * @param dateString The input is a date string
+ * @returns Returns Date object
+ */
+export declare function parseDateString(dateString: string): Date;

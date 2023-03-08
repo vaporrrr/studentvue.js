@@ -27,3 +27,15 @@ export async function asyncPoolAll<IN, OUT>(
 export function optional<T>(xmlArr?: T[]): T | undefined {
   return xmlArr ? xmlArr[0] : undefined;
 }
+
+/**
+ * Parsing a string to a Date
+ * @param dateString The input is a date string
+ * @returns Returns Date object
+ */
+export function parseDateString(dateString: string) {
+  const m = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  return m
+    ? new Date(parseInt(m[3]), parseInt(m[1]) - 1, parseInt(m[2]))
+    : new Date(dateString);
+}

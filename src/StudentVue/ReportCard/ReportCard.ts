@@ -1,7 +1,11 @@
 import { LoginCredentials } from '../../utils/soap/Client/Client.interfaces';
+import { parseDateString } from '../Client/Client.helpers';
 import File from '../File/File';
 import { ReportCardFile } from './ReportCard.interfaces';
-import { ReportCardBase64XMLObject, ReportCardsXMLObject } from './ReportCard.xml';
+import {
+  ReportCardBase64XMLObject,
+  ReportCardsXMLObject,
+} from './ReportCard.xml';
 
 /**
  * ReportCard class
@@ -13,7 +17,9 @@ export default class ReportCard extends File<ReportCardFile | undefined> {
 
   public readonly periodName: string;
 
-  protected parseXMLObject(xmlObject: ReportCardBase64XMLObject): ReportCardFile | undefined {
+  protected parseXMLObject(
+    xmlObject: ReportCardBase64XMLObject
+  ): ReportCardFile | undefined {
     if ('DocumentData' in xmlObject)
       return {
         document: {
@@ -36,7 +42,7 @@ export default class ReportCard extends File<ReportCardFile | undefined> {
      * @readonly
      * @type {Date}
      */
-    this.date = new Date(xmlObj['@_EndDate'][0]);
+    this.date = parseDateString(xmlObj['@_EndDate'][0]);
     /**
      * The time period of the report card
      * @public

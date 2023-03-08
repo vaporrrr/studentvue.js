@@ -283,7 +283,7 @@ declare module 'studentvue/StudentVue/Client/Client' {
                 * @returns {Promise<Calendar>} Returns a Calendar object
                 * @description
                 * ```js
-                * client.calendar({ interval: { start: new Date('5/1/2022'), end: new Date('8/1/2021') }, concurrency: null }); // -> Limitless concurrency (not recommended)
+                * client.calendar({ interval: { start: parseDate('5/1/2022'), end: parseDate('8/1/2021') }, concurrency: null }); // -> Limitless concurrency (not recommended)
                 *
                 * const calendar = await client.calendar({ interval: { ... }});
                 * console.log(calendar); // -> { schoolDate: {...}, outputRange: {...}, events: [...] }
