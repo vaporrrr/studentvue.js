@@ -1708,7 +1708,7 @@ declare module 'studentvue/StudentVue/Client/Interfaces/StudentInfo' {
 }
 
 declare module 'studentvue/StudentVue/Client/Interfaces/Schedule' {
-    import { Staff } from 'studentvue/StudentVue/Client/Client.interfaces';
+    import { Staff } from "studentvue/StudentVue/Client/Client.interfaces";
     
     export interface Schedule {
         /**
@@ -1899,6 +1899,11 @@ declare module 'studentvue/StudentVue/Client/Interfaces/Schedule' {
             * The teacher of the class
             */
         teacher: Staff & { url: string; emailSubject: string };
+    
+        /**
+            * The room name or location of the class
+            */
+        room: string;
     }
 }
 
